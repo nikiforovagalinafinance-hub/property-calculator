@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real Estate Investment Calculator</title>
+<!-- Telegram Mini App SDK (безопасно работает и вне Telegram) -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#eef1f4;font-family:'Space Grotesk',sans-serif;padding:16px;display:flex;justify-content:center}
+.wrap{width:100%;max-width:1000px;background:#f8f9fa;border-radius:12px;overflow:hidden;border:1px solid #e2e6ea;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.hdr{background:#0d1117;padding:12px 18px;display:flex;align-items:center;gap:12px}
+.hdr-logo{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.14em;color:#f59e0b;background:#1a1200;padding:3px 9px;border-radius:3px;flex-shrink:0}
+.hdr-main{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.hdr-title{font-size:17px;font-weight:700;color:#fff;letter-spacing:-.01em;line-height:1.05}
+.hdr-sub{font-size:10px;color:#64748b;letter-spacing:.04em;font-family:'IBM Plex Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang-btn{flex-shrink:0;display:flex;background:#1e2d3d;border-radius:4px;overflow:hidden;cursor:pointer;border:1px solid #2d3f52}
+.lang-opt{font-size:10px;font-weight:700;letter-spacing:.05em;font-family:'IBM Plex Mono',monospace;padding:4px 10px;color:#64748b;transition:all .15s;user-select:none}
+.lang-opt.on{background:#f59e0b;color:#0d1117}
+.body{display:grid;grid-template-columns:300px 1fr;align-items:stretch;background:#fff}
+.left{background:#fff;border-right:1px solid #e8ecf0;padding:14px 13px;display:flex;flex-direction:column}
+.right{background:#f8f9fa;padding:15px;display:flex;flex-direction:column;gap:12px}
+.sec-hd{font-size:9px;font-weight:700;letter-spacing:.12em;color:#64748b;padding:9px 0 5px;border-bottom:1.5px solid #e8ecf0;margin-bottom:7px;text-transform:uppercase}
+.ctabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:4px}
+.ctab{padding:5px 0;text-align:center;font-size:12px;font-weight:700;border:1.5px solid #e2e6ea;border-radius:5px;cursor:pointer;color:#94a3b8;background:#f8f9fa;transition:all .15s;letter-spacing:.02em}
+.ctab.on{background:#f59e0b;color:#0d1117;border-color:#f59e0b}
+.rate-date{font-size:9px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;margin-bottom:10px;text-align:center}
+.sl-row{margin-bottom:9px}
+.sl-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px}
+.sl-lbl{font-size:11px;color:#334155;line-height:1.3;flex:1;font-weight:500}
+.sl-val{font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap;flex-shrink:0;min-width:82px;text-align:right}
+.sl-hint{font-size:9px;color:#94a3b8;margin-bottom:3px;line-height:1.4;font-style:italic}
+.cb{color:#2563eb}.ca{color:#d97706}.cg{color:#16a34a}.ct{color:#0d9488}.cp{color:#c2654a}.cv{color:#54708f}.co{color:#ea580c}.cl{color:#65a30d}
+input[type=range]{width:100%;height:3px;-webkit-appearance:none;appearance:none;border-radius:2px;outline:none;cursor:pointer;display:block}
+input[type=range].cb{background:linear-gradient(to right,#2563eb 0%,#2563eb var(--p,50%),#e2e8f0 var(--p,50%))}
+input[type=range].ca{background:linear-gradient(to right,#d97706 0%,#d97706 var(--p,50%),#e2e8f0 var(--p,50%))}
+input[type=range].cg{background:linear-gradient(to right,#16a34a 0%,#16a34a var(--p,50%),#e2e8f0 var(--p,50%))}
+input[type=range].ct{background:linear-gradient(to right,#0d9488 0%,#0d9488 var(--p,50%),#e2e8f0 var(--p,50%))}
+input[type=range].cp{background:linear-gradient(to right,#c2654a 0%,#c2654a var(--p,50%),#e2e8f0 var(--p,50%))}
+input[type=range].cv{background:linear-gradient(to right,#54708f 0%,#54708f var(--p,50%),#e2e8f0 var(--p,50%))}
+input[type=range].co{background:linear-gradient(to right,#ea580c 0%,#ea580c var(--p,50%),#e2e8f0 var(--p,50%))}
+input[type=range].cl{background:linear-gradient(to right,#65a30d 0%,#65a30d var(--p,50%),#e2e8f0 var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#0d1117;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1.5px #cbd5e1}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#0d1117;cursor:pointer;border:2px solid #fff}
+.div{height:1px;background:#e8ecf0;margin:5px 0 3px}
+.spacer{flex:1}
+.htabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.htab{padding:9px 0;text-align:center;font-size:11px;font-weight:700;border:1.5px solid #e2e6ea;border-radius:6px;cursor:pointer;color:#94a3b8;background:#fff;transition:all .15s;letter-spacing:.03em}
+.htab.on{background:#f59e0b;color:#0d1117;border-color:#f59e0b}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kpi{background:#fff;border:1px solid #e2e6ea;border-radius:8px;padding:12px 11px 10px;border-top-width:3px}
+.kpi.k1{border-top-color:#2563eb}.kpi.k2{border-top-color:#16a34a}.kpi.k3{border-top-color:#d97706}.kpi.k4{border-top-color:#54708f}
+.kpi-lbl{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#94a3b8;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-val{font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1.1;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi.k1 .kpi-val{color:#2563eb}.kpi.k2 .kpi-val{color:#16a34a}.kpi.k3 .kpi-val{color:#d97706}.kpi.k4 .kpi-val{color:#54708f}
+.kpi-sub{font-size:10px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-box{background:#fff;border:1px solid #e2e6ea;border-radius:8px;padding:13px 15px;flex:1;display:flex;flex-direction:column;justify-content:center}
+.box-hd{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:12px}
+.bar-row{display:grid;grid-template-columns:124px 1fr;align-items:center;gap:8px;margin-bottom:8px}
+.bar-row:last-child{margin-bottom:0}
+.bar-nm{font-size:12px;color:#475569;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{background:#f1f5f9;border-radius:4px;height:27px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 8px;transition:width .45s cubic-bezier(.4,0,.2,1);min-width:2px}
+.bar-fill span{font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap;color:#fff}
+.tbl-box{background:#fff;border:1px solid #e2e6ea;border-radius:8px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94a3b8;background:#f8f9fa;border-bottom:1px solid #e2e6ea;white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:8px 10px;border-bottom:1px solid #f1f5f9;text-align:right;font-family:'IBM Plex Mono',monospace;color:#475569;font-size:12px;white-space:nowrap}
+td:first-child{text-align:left;font-family:'Space Grotesk',sans-serif;color:#1e293b;font-weight:600;font-size:12px}
+tr:last-child td{border-bottom:none}
+tr.best td{color:#166534}tr.best td:first-child{color:#14532d}
+tr.best{background:#f0fdf4}
+.pos{color:#16a34a!important}.neg{color:#c2654a!important}
+.verdict{background:#f59e0b;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px}
+.verdict.up{background:#f59e0b}.verdict.down{background:#f59e0b}.verdict.neu{background:#f59e0b}
+.v-icon{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:700;line-height:1;flex-shrink:0}
+.verdict .v-icon{color:#0d1117}
+.v-body{flex:1;min-width:0}
+.v-hd{font-size:15px;font-weight:700;letter-spacing:.04em;margin-bottom:5px;text-transform:uppercase}
+.verdict .v-hd{color:#0d1117}
+.v-txt{font-size:14px;line-height:1.6;color:#1a1200}
+.v-txt strong{font-weight:700;color:#000}
+.tnote{font-size:11px;padding:9px 13px;border-radius:6px;border:1px solid;line-height:1.5}
+.tn-ok{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+.tn-warn{background:#fff7ed;border-color:#fed7aa;color:#b45309}
+.footer{font-size:9px;color:#94a3b8;text-align:center;padding:10px;font-family:'IBM Plex Mono',monospace}
+/* ─── Мобильная адаптация для Telegram / телефонов ─── */
+@media (max-width:680px){
+  body{padding:0}
+  .wrap{border-radius:0;border:none;max-width:100%}
+  .body{grid-template-columns:1fr}
+  .left{border-right:none;border-bottom:1px solid #e8ecf0}
+  .hdr-title{font-size:15px;white-space:normal}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpi-val{font-size:15px}
+  .bar-row{grid-template-columns:96px 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hdr">
+  <div class="hdr-logo">INVEST</div>
+  <div class="hdr-main">
+    <div class="hdr-title" id="hdTitle">Real Estate Investment Calculator</div>
+    <div class="hdr-sub" id="hdSub">PROPERTY ROI · RENTAL + CAPITAL GROWTH vs BENCHMARKS</div>
+  </div>
+  <div class="lang-btn">
+    <div class="lang-opt" onclick="setLang('en',this)">EN</div>
+    <div class="lang-opt on" onclick="setLang('ru',this)">RU</div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="sec-hd" id="sDisplay">Display Currency</div>
+  <div class="ctabs">
+    <div class="ctab on" onclick="setCur('RUB',this)">₽ RUB</div>
+    <div class="ctab" onclick="setCur('USD',this)">$ USD</div>
+    <div class="ctab" onclick="setCur('EUR',this)">€ EUR</div>
+  </div>
+  <div class="rate-date" id="rateDate">курс ЦБ загружается…</div>
+
+  <div class="sec-hd" id="sAcq">Property &amp; Acquisition Costs</div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lPrice">Property price</span><span class="sl-val cb" id="vPrice">—</span></div><input type="range" id="price" class="cb" min="1000000" max="30000000" step="100000" value="5000000" oninput="sp(this);upd()"></div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lAgentB">Buyer's agent fee</span><span class="sl-val ca" id="vAgentB">—</span></div><div class="sl-hint" id="hAgentB">Realtor commission for property search &amp; deal support</div><input type="range" id="agentB" class="ca" min="0" max="5" step="0.5" value="2" oninput="sp(this);upd()"></div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lLegal">Legal &amp; notary fees</span><span class="sl-val co" id="vLegal">—</span></div><div class="sl-hint" id="hLegal">Title check, notarial deed, state registration (Rosreestr)</div><input type="range" id="legal" class="co" min="0" max="2" step="0.1" value="0.5" oninput="sp(this);upd()"></div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lReno">Renovation &amp; furnishing</span><span class="sl-val ct" id="vReno">—</span></div><div class="sl-hint" id="hReno">One-time upfront cost before first tenant</div><input type="range" id="reno" class="ct" min="0" max="3000000" step="50000" value="350000" oninput="sp(this);upd()"></div>
+
+  <div class="div"></div>
+  <div class="sec-hd" id="sRental">Rental Scenario</div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lRent">Monthly gross rent</span><span class="sl-val cg" id="vRent">—</span></div><input type="range" id="rent" class="cg" min="10000" max="200000" step="1000" value="40000" oninput="sp(this);upd()"></div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lRentCost">Operating costs (mgmt + vacancy)</span><span class="sl-val cp" id="vRentCost">—</span></div><div class="sl-hint" id="hRentCost">Property manager ~10% + utilities during void periods</div><input type="range" id="rentCost" class="cp" min="5" max="40" step="5" value="15" oninput="sp(this);upd()"></div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lRentGrow">Annual rent growth</span><span class="sl-val cl" id="vRentGrow">—</span></div><input type="range" id="rentGrow" class="cl" min="0" max="20" step="1" value="5" oninput="sp(this);upd()"></div>
+
+  <div class="div"></div>
+  <div class="sec-hd" id="sExit">Capital Growth &amp; Exit</div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lCapGrow">Annual property price growth</span><span class="sl-val cv" id="vCapGrow">—</span></div><input type="range" id="capGrow" class="cv" min="0" max="30" step="1" value="8" oninput="sp(this);upd()"></div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lSellCost">Seller's agent fee</span><span class="sl-val ca" id="vSellCost">—</span></div><div class="sl-hint" id="hSellCost">Realtor commission on the sale side</div><input type="range" id="sellCost" class="ca" min="0" max="5" step="0.5" value="2" oninput="sp(this);upd()"></div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lOwner">Holding period</span><span class="sl-val ct" id="vOwner">—</span></div><input type="range" id="owner" class="ct" min="1" max="10" step="1" value="5" oninput="sp(this);upd()"></div>
+
+  <div class="div"></div>
+  <div class="sec-hd" id="sBench">Benchmarks (after 13% income tax)</div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lDep">Bank deposit rate p.a.</span><span class="sl-val cb" id="vDep">—</span></div><input type="range" id="dep" class="cb" min="4" max="25" step="0.5" value="14" oninput="sp(this);upd()"></div>
+  <div class="sl-row"><div class="sl-top"><span class="sl-lbl" id="lOfz">Government bond (OFZ) YTM p.a.</span><span class="sl-val cl" id="vOfz">—</span></div><input type="range" id="ofz" class="cl" min="4" max="20" step="0.5" value="12" oninput="sp(this);upd()"></div>
+  <div class="spacer"></div>
+</div>
+
+<div class="right">
+  <div class="htabs">
+    <div class="htab on" onclick="setH(5,this)" id="ht5">5-YEAR ANALYSIS</div>
+    <div class="htab" onclick="setH(10,this)" id="ht10">10-YEAR ANALYSIS</div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div class="tnote" id="tnote"></div>
+  <div class="chart-box" id="chartBox"></div>
+  <div class="tbl-box"><table id="tbl"></table></div>
+  <div class="verdict" id="verdict"><div class="v-icon" id="vIcon"></div><div class="v-body"><div class="v-hd" id="vHd"></div><div class="v-txt" id="vTxt"></div></div></div>
+</div>
+</div>
+<div class="footer" id="footer">Не является индивидуальной инвестиционной рекомендацией · Not investment advice</div>
+</div>
+
+<script>
+/* ═══ Telegram Mini App init (безопасно вне Telegram) ═══ */
+try{ if(window.Telegram&&window.Telegram.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();} }catch(e){}
+
+var cur='RUB',hor=5,lang='ru';
+/* Резервные курсы — используются если API ЦБ недоступен */
+var rates={RUB:1,USD:90,EUR:97};
+var rateDateStr='';
+
+var T={
+en:{hdTitle:'Real Estate Investment Calculator',hdSub:'PROPERTY ROI · RENTAL + CAPITAL GROWTH vs BENCHMARKS',
+  sDisplay:'Display Currency',sAcq:'Property & Acquisition Costs',sRental:'Rental Scenario',sExit:'Capital Growth & Exit',sBench:'Benchmarks (after 13% income tax)',
+  lPrice:'Property price',lAgentB:"Buyer's agent fee",hAgentB:'Realtor commission for property search & deal support',
+  lLegal:'Legal & notary fees',hLegal:'Title check, notarial deed, state registration (Rosreestr)',
+  lReno:'Renovation & furnishing',hReno:'One-time upfront cost before first tenant',
+  lRent:'Monthly gross rent',lRentCost:'Operating costs (mgmt + vacancy)',hRentCost:'Property manager ~10% + utilities during void periods',
+  lRentGrow:'Annual rent growth',lCapGrow:'Annual property price growth',lSellCost:"Seller's agent fee",hSellCost:'Realtor commission on the sale side',
+  lOwner:'Holding period',lDep:'Bank deposit rate p.a.',lOfz:'Government bond (OFZ) YTM p.a.',ht5:'5-YEAR ANALYSIS',ht10:'10-YEAR ANALYSIS',
+  kInvested:'Total Invested',kRental:'Rental',kCapGain:'Capital Gain',kMthCash:'Monthly Cash',kEntCost:'entry + reno',kNetRent:'net rent',kAnn:'ann',
+  taxOk:'✓ TAX-FREE EXIT: Holding {H} years ≥ 5 years → capital gains tax = ₽0 (Art. 217.1 Tax Code RF).',
+  taxWarn:'⚠ TAX ALERT: Holding period {H} yrs < 5 yrs → capital gains tax 13% on profit = {T}. Hold 5+ years for 0% tax (Art. 217.1 Tax Code RF).',
+  chartHd:'NET RETURN COMPARISON — {H}-YEAR HORIZON',sRentSale:'Rental + Sale',sRentOnly:'Rental only',sSaleOnly:'Sale only',sDep:'Deposit',sOfz:'OFZ Bond',
+  thScenario:'Scenario',thNet:'{H}-yr Net',thAnn:'Ann. Return',thMth:'Mo. Cash',thVsDep:'vs Deposit',yrs:'yrs',
+  vOutHd:'OUTPERFORMS',vOutTxt:'Rental + Sale yields <strong>{A}</strong> p.a. — beats deposit by <strong>{D}</strong>. Additional gain vs deposit: <strong>{G}</strong>.',
+  vUnHd:'UNDERPERFORMS',vUnTxt:'Deposit gives <strong>{D}</strong> vs <strong>{A}</strong> for real estate. Try increasing rent growth or annual price appreciation.',
+  vNeuHd:'NEUTRAL',vNeuTxt:'OFZ bond <strong>{O}</strong> vs real estate <strong>{A}</strong>. Instruments are broadly comparable at current parameters.',
+  rateDate:'CBR rate as of {D}',rateFallback:'CBR rate unavailable — using fallback',footer:'Not investment advice'},
+ru:{hdTitle:'Калькулятор инвестиций в недвижимость',hdSub:'АНАЛИЗ ДОХОДНОСТИ · АРЕНДА + РОСТ ЦЕНЫ ОБЪЕКТА vs ДЕПОЗИТ',
+  sDisplay:'Валюта отображения',sAcq:'Объект и затраты на покупку',sRental:'Сценарий аренды',sExit:'Рост стоимости и продажа',sBench:'Бенчмарки (после НДФЛ 13%)',
+  lPrice:'Стоимость объекта',lAgentB:'Комиссия агента (покупка)',hAgentB:'Вознаграждение риелтора за поиск и сопровождение сделки',
+  lLegal:'Юридическое оформление и нотариус',hLegal:'Проверка права, нотариат, госпошлина, регистрация в Росреестре',
+  lReno:'Ремонт и меблировка',hReno:'Единовременные затраты до заселения первого арендатора',
+  lRent:'Аренда в месяц (брутто)',lRentCost:'Расходы (управление + простой)',hRentCost:'Комиссия управляющего ~10% + коммуналка в период простоя',
+  lRentGrow:'Рост аренды в год',lCapGrow:'Рост стоимости объекта в год',lSellCost:'Комиссия агента (продажа)',hSellCost:'Вознаграждение риелтора на стороне продавца',
+  lOwner:'Срок владения',lDep:'Ставка депозита % год',lOfz:'ОФЗ YTM % год',ht5:'ГОРИЗОНТ 5 ЛЕТ',ht10:'ГОРИЗОНТ 10 ЛЕТ',
+  kInvested:'Вложено',kRental:'Аренда',kCapGain:'Прирост цены',kMthCash:'Мес. доход',kEntCost:'вход + ремонт',kNetRent:'чистый доход',kAnn:'% год',
+  taxOk:'✓ НДФЛ = 0: Срок {H} лет ≥ 5 лет → налог при продаже 0 ₽ (ст. 217.1 НК РФ).',
+  taxWarn:'⚠ НАЛОГОВЫЙ РИСК: Срок {H} лет < 5 лет → НДФЛ 13% с прибыли = {T}. Рекомендуем горизонт 5+ лет.',
+  chartHd:'СРАВНЕНИЕ ЧИСТОГО ДОХОДА — ГОРИЗОНТ {H} ЛЕТ',sRentSale:'Аренда + продажа',sRentOnly:'Только аренда',sSaleOnly:'Только продажа',sDep:'Депозит',sOfz:'ОФЗ',
+  thScenario:'Сценарий',thNet:'Доход {H} лет',thAnn:'% год',thMth:'Мес. поток',thVsDep:'vs Депозит',yrs:'лет',
+  vOutHd:'НЕДВИЖИМОСТЬ ВЫГОДНЕЕ',vOutTxt:'Аренда + продажа даёт <strong>{A}</strong> годовых — превышает депозит на <strong>{D}</strong>. Дополнительный доход: <strong>{G}</strong>.',
+  vUnHd:'ХУЖЕ ДЕПОЗИТА',vUnTxt:'Депозит даёт <strong>{D}</strong> против <strong>{A}</strong> по недвижимости. Попробуйте увеличить рост аренды или стоимости объекта.',
+  vNeuHd:'СОПОСТАВИМО',vNeuTxt:'ОФЗ <strong>{O}</strong> vs недвижимость <strong>{A}</strong>. При текущих параметрах инструменты близки по доходности.',
+  rateDate:'курс ЦБ на {D}',rateFallback:'курс ЦБ недоступен — резервные значения',footer:'Не является индивидуальной инвестиционной рекомендацией'}};
+
+/* ═══ Автообновление курсов ЦБ РФ + кеш на сутки ═══ */
+async function loadRates(){
+  var DAY=86400000;
+  try{
+    var cached=localStorage.getItem('cbr_rates'), ts=localStorage.getItem('cbr_ts'), dt=localStorage.getItem('cbr_date');
+    if(cached&&ts&&(Date.now()-(+ts))<DAY){
+      rates=JSON.parse(cached); rateDateStr=dt||''; applyRateDate(); upd(); return;
+    }
+  }catch(e){}
+  try{
+    var r=await fetch('https://www.cbr-xml-daily.ru/daily_json.js');
+    var data=await r.json();
+    rates={RUB:1, USD:data.Valute.USD.Value, EUR:data.Valute.EUR.Value};
+    var d=new Date(data.Date);
+    rateDateStr=('0'+d.getDate()).slice(-2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+d.getFullYear();
+    try{
+      localStorage.setItem('cbr_rates',JSON.stringify(rates));
+      localStorage.setItem('cbr_ts',Date.now());
+      localStorage.setItem('cbr_date',rateDateStr);
+    }catch(e){}
+    applyRateDate(); upd();
+  }catch(e){
+    rateDateStr=''; applyRateDate(true); upd();
+  }
+}
+function applyRateDate(fallback){
+  var t=T[lang], el=document.getElementById('rateDate');
+  if(fallback||!rateDateStr){el.textContent=t.rateFallback;}
+  else{el.textContent=t.rateDate.replace('{D}',rateDateStr);}
+}
+
+function setLang(l,el){lang=l;document.querySelectorAll('.lang-opt').forEach(t=>t.classList.remove('on'));el.classList.add('on');applyLang();applyRateDate(!rateDateStr);upd();}
+function applyLang(){var t=T[lang];['hdTitle','hdSub','sDisplay','sAcq','sRental','sExit','sBench','lPrice','lAgentB','hAgentB','lLegal','hLegal','lReno','hReno','lRent','lRentCost','hRentCost','lRentGrow','lCapGrow','lSellCost','hSellCost','lOwner','lDep','lOfz'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=t[id];});document.getElementById('ht5').textContent=t.ht5;document.getElementById('ht10').textContent=t.ht10;document.documentElement.lang=lang;document.getElementById('footer').textContent=t.footer;}
+function setCur(c,el){cur=c;document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));el.classList.add('on');upd();}
+function setH(h,el){hor=h;document.querySelectorAll('.htab').forEach(t=>t.classList.remove('on'));el.classList.add('on');upd();}
+function sp(el){var p=((+el.value- +el.min)/(+el.max- +el.min)*100).toFixed(1)+'%';el.style.setProperty('--p',p);}
+document.querySelectorAll('input[type=range]').forEach(sp);
+function fc(n){var r=rates[cur],s=({RUB:'₽',USD:'$',EUR:'€'})[cur],v=n/r,abs=Math.abs(v),neg=v<0,str;if(abs>=1000000)str=(Math.abs(v)/1000000).toFixed(1)+'M';else str=Math.round(Math.abs(v)).toLocaleString('ru-RU').replace(/,/g,' ');return(neg?'−':'')+(cur==='RUB'?str+'\u00a0'+s:s+str);}
+function fp(n){return(n*100).toFixed(1)+'%';}
+function upd(){
+  var t=T[lang];
+  var price=+price_.value,agB=+agentB.value/100,leg=+legal.value/100,reno=+reno_.value,own=+owner.value,rentM=+rent_.value,rentCP=+rentCost.value/100,rentGP=+rentGrow.value/100,capGP=+capGrow.value/100,sellCP=+sellCost.value/100,depR=+dep.value/100,ofzR=+ofz.value/100;
+  vPrice.textContent=fc(price);vAgentB.textContent=(agB*100).toFixed(1)+'%';vLegal.textContent=(leg*100).toFixed(1)+'%';vReno.textContent=fc(reno);vOwner.textContent=own+'\u00a0'+t.yrs;vRent.textContent=fc(rentM);vRentCost.textContent=(rentCP*100).toFixed(0)+'%';vRentGrow.textContent=(rentGP*100).toFixed(0)+'%';vCapGrow.textContent=(capGP*100).toFixed(0)+'%';vSellCost.textContent=(sellCP*100).toFixed(1)+'%';vDep.textContent=(depR*100).toFixed(1)+'%';vOfz.textContent=(ofzR*100).toFixed(1)+'%';
+  var totalIn=price*(1+agB+leg)+reno,H=hor,rentNet=0,m=rentM;
+  for(var y=0;y<H;y++){rentNet+=m*12*(1-rentCP);m*=(1+rentGP);}
+  var salePx=price*Math.pow(1+capGP,H),saleNet=salePx*(1-sellCP),taxSale=0;
+  if(own<5){var pf=saleNet-totalIn;if(pf>0)taxSale=pf*0.13;}
+  var saleFinal=saleNet-taxSale,combo=rentNet+saleFinal-totalIn,rentOnly=rentNet-totalIn,saleOnly=saleFinal-totalIn;
+  var depFinal=totalIn*Math.pow(1+depR*0.87,H)-totalIn,ofzFinal=totalIn*Math.pow(1+ofzR*0.87,H)-totalIn;
+  function ann(g){return H>0?Math.pow(1+Math.max(g,-0.99)/totalIn,1/H)-1:0;}
+  var comboAnn=ann(combo),rentAnn=ann(rentOnly),saleAnn=ann(saleOnly),depAnn=depR*0.87,ofzAnn=ofzR*0.87,mthNet=rentM*(1-rentCP);
+  kpis.innerHTML=[['k1',t.kInvested,fc(totalIn),t.kEntCost],['k2',t.kRental+'\u00a0'+H+t.yrs,fc(rentNet),fp(rentAnn)+'\u00a0'+t.kAnn],['k3',t.kCapGain,fc(saleOnly),fp(saleAnn)+'\u00a0'+t.kAnn],['k4',t.kMthCash,fc(mthNet),t.kNetRent]].map(function(k){return'<div class="kpi '+k[0]+'"><div class="kpi-lbl">'+k[1]+'</div><div class="kpi-val">'+k[2]+'</div><div class="kpi-sub">'+k[3]+'</div></div>';}).join('');
+  if(own<5){tnote.className='tnote tn-warn';tnote.textContent=t.taxWarn.replace('{H}',own).replace('{T}',fc(taxSale));}else{tnote.className='tnote tn-ok';tnote.textContent=t.taxOk.replace('{H}',own);}
+  var rows=[{n:t.sRentSale,v:combo,c:'#5b7fa6'},{n:t.sRentOnly,v:rentOnly,c:'#6e9e7f'},{n:t.sSaleOnly,v:saleOnly,c:'#5f9690'},{n:t.sDep+'\u00a0'+(depR*100).toFixed(0)+'%',v:depFinal,c:'#94a3b8'},{n:t.sOfz+'\u00a0'+(ofzR*100).toFixed(0)+'%',v:ofzFinal,c:'#9aa86b'}];
+  var mx=Math.max.apply(null,rows.map(function(r){return Math.abs(r.v)}).concat([1])),ch='<div class="box-hd">'+t.chartHd.replace('{H}',H)+'</div>';
+  rows.forEach(function(r){var w=Math.max(Math.abs(r.v)/mx*100,2).toFixed(1),neg=r.v<0;ch+='<div class="bar-row"><div class="bar-nm">'+r.n+'</div><div class="bar-track"><div class="bar-fill" style="width:'+w+'%;background:'+(neg?'#bd8773':r.c)+'"><span>'+fc(r.v)+'</span></div></div></div>';});
+  chartBox.innerHTML=ch;
+  var rows2=[{n:t.sRentSale,tot:combo,ann:comboAnn,mth:mthNet,best:true},{n:t.sRentOnly,tot:rentOnly,ann:rentAnn,mth:mthNet,best:false},{n:t.sSaleOnly,tot:saleOnly,ann:saleAnn,mth:0,best:false},{n:t.sDep+'\u00a0'+(depR*100).toFixed(0)+'%',tot:depFinal,ann:depAnn,mth:0,best:false},{n:t.sOfz+'\u00a0'+(ofzR*100).toFixed(0)+'%',tot:ofzFinal,ann:ofzAnn,mth:0,best:false}];
+  var th='<thead><tr><th>'+t.thScenario+'</th><th>'+t.thNet.replace('{H}',H)+'</th><th>'+t.thAnn+'</th><th>'+t.thMth+'</th><th>'+t.thVsDep+'</th></tr></thead><tbody>';
+  rows2.forEach(function(r){var d=r.tot-depFinal;th+='<tr class="'+(r.best?'best':'')+'"><td>'+r.n+'</td><td class="'+(r.tot>=0?'pos':'neg')+'">'+fc(r.tot)+'</td><td class="'+(r.ann>=0?'pos':'neg')+'">'+fp(r.ann)+'</td><td>'+(r.mth>0?fc(r.mth):'—')+'</td><td class="'+(d>=0?'pos':'neg')+'">'+((d>=0?'+':'')+fc(d))+'</td></tr>';});
+  tbl.innerHTML=th+'</tbody>';
+  if(comboAnn>depAnn&&comboAnn>ofzAnn){verdict.className='verdict up';vIcon.textContent='▲';vHd.textContent=t.vOutHd;vTxt.innerHTML=t.vOutTxt.replace('{A}',fp(comboAnn)).replace('{D}',fp(comboAnn-depAnn)).replace('{G}',fc(combo-depFinal));}
+  else if(depAnn>=comboAnn&&depAnn>=ofzAnn){verdict.className='verdict down';vIcon.textContent='▼';vHd.textContent=t.vUnHd;vTxt.innerHTML=t.vUnTxt.replace('{D}',fp(depAnn)).replace('{A}',fp(comboAnn));}
+  else{verdict.className='verdict neu';vIcon.textContent='~';vHd.textContent=t.vNeuHd;vTxt.innerHTML=t.vNeuTxt.replace('{O}',fp(ofzAnn)).replace('{A}',fp(comboAnn));}
+}
+var price_=document.getElementById('price'),agentB=document.getElementById('agentB'),legal=document.getElementById('legal'),reno_=document.getElementById('reno'),owner=document.getElementById('owner'),rent_=document.getElementById('rent'),rentCost=document.getElementById('rentCost'),rentGrow=document.getElementById('rentGrow'),capGrow=document.getElementById('capGrow'),sellCost=document.getElementById('sellCost'),dep=document.getElementById('dep'),ofz=document.getElementById('ofz');
+var vPrice=document.getElementById('vPrice'),vAgentB=document.getElementById('vAgentB'),vLegal=document.getElementById('vLegal'),vReno=document.getElementById('vReno'),vOwner=document.getElementById('vOwner'),vRent=document.getElementById('vRent'),vRentCost=document.getElementById('vRentCost'),vRentGrow=document.getElementById('vRentGrow'),vCapGrow=document.getElementById('vCapGrow'),vSellCost=document.getElementById('vSellCost'),vDep=document.getElementById('vDep'),vOfz=document.getElementById('vOfz');
+var kpis=document.getElementById('kpis'),tnote=document.getElementById('tnote'),chartBox=document.getElementById('chartBox'),tbl=document.getElementById('tbl'),verdict=document.getElementById('verdict'),vIcon=document.getElementById('vIcon'),vHd=document.getElementById('vHd'),vTxt=document.getElementById('vTxt');
+applyLang();upd();loadRates();
+</script>
+</body>
+</html>
